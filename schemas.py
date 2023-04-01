@@ -7,3 +7,6 @@ class Product(BaseModel):
 
 class ProductOutput(Product):
     id: int
+
+    class Config:
+        orm_mode=True
