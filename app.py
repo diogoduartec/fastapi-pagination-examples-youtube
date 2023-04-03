@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from db import SessionLocal, ProductModel
 from use_cases import get_products_use_case
 from schemas import ProductOutput
+from custom_pagination import CustomPage, custom_sqlalchemy_paginate
 
 
 app = FastAPI()
@@ -48,11 +49,17 @@ def get_products_paginate_db(db_session: Session = Depends(get_db_session)):
 
 
 @app.get('/db/products/paginate/default/custom', response_model=Page[ProductOutput])
-def get_products_paginate_db(
+def get_products_paginate_db_custom(
     db_session: Session = Depends(get_db_session),
     page: int = Query(1, ge=1),
     size: int = Query(50, ge=1, le=100)
 ):
     return get_products_use_case(db_session=db_session, page=page, size=size)
 
-# add_pagination(app)
+
+@app.get('/db/products/paginate/custom/page', response_model=CustomPage[ProductOutput])
+def get_products_paginate_db_custom_paginate(db_session: Session = Depends(get_db_session)):
+    product_query = db_session.query(ProductModel) # SELECT * FROM products;
+    return custom_sqlalchemy_paginate(product_query)
+
+add_pagination(app)
